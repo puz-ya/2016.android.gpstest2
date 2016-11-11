@@ -30,10 +30,15 @@ public class ApplicationService extends Service implements LocationListener {
 
     public Location getLocation(String provider) {
 
+        //make debugging stop
+        if (android.os.Debug.isDebuggerConnected()){ android.os.Debug.waitForDebugger(); }
+
         if (locationManager.isProviderEnabled(provider)) {
+            //android.os.Debug.waitForDebugger();
             locationManager.requestLocationUpdates(provider,
                     MIN_TIME_FOR_UPDATE, MIN_DISTANCE_FOR_UPDATE, this);
             if (locationManager != null) {
+                //android.os.Debug.waitForDebugger();
                 location = locationManager.getLastKnownLocation(provider);
                 return location;
             }

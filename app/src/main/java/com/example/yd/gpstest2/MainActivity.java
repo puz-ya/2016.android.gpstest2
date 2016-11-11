@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     private static final long MIN_DISTANCE_FOR_UPDATE = 0; //10;
     private static final long MIN_TIME_FOR_UPDATE = 0; //1000 * 60 * 2;
-    
+    private static final boolean IS_SERVICE = false;
 
     ApplicationService appLocationService;
     private static final int INITIAL_REQUEST=1337;
@@ -61,16 +61,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 Toast.makeText(this, "LOCATION ACCESS enabled.", Toast.LENGTH_LONG).show();
             }
 
-            //appLocationService = new ApplicationService(MainActivity.this);
-
+            if(IS_SERVICE) {
+                appLocationService = new ApplicationService(MainActivity.this);
+            }
 
             btnGPSShowLocation = (Button) findViewById(R.id.btnGPSShowLocation);
             btnGPSShowLocation.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View arg0) {
 
-                    //Location gpsLocation = appLocationService.getLocation(LocationManager.GPS_PROVIDER);
-                    Location gpsLocation = returnLocationService(LocationManager.GPS_PROVIDER);
+                    Location gpsLocation = null;
+                    if(IS_SERVICE){
+                        gpsLocation = appLocationService.getLocation(LocationManager.GPS_PROVIDER);
+                    }else {
+                        gpsLocation = returnLocationService(LocationManager.GPS_PROVIDER);
+                    }
 
                     if (gpsLocation != null) {
                         double latitude = gpsLocation.getLatitude();
@@ -92,8 +97,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 @Override
                 public void onClick(View arg0) {
 
-                    //Location nwLocation = appLocationService.getLocation(LocationManager.NETWORK_PROVIDER);
-                    Location nwLocation = returnLocationService(LocationManager.NETWORK_PROVIDER);
+                    Location nwLocation = null;
+                    if(IS_SERVICE){
+                        nwLocation = appLocationService.getLocation(LocationManager.NETWORK_PROVIDER);
+                    }else{
+                        nwLocation = returnLocationService(LocationManager.NETWORK_PROVIDER);
+                    }
 
                     if (nwLocation != null) {
                         double latitude = nwLocation.getLatitude();
@@ -119,15 +128,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             Location location;
 
             if (locationManager.isProviderEnabled(provider)) {
-                try{
-                    locationManager.requestLocationUpdates(provider,MIN_TIME_FOR_UPDATE, MIN_DISTANCE_FOR_UPDATE, this);
-                }catch (Exception ex){
-                    Toast.makeText(this, ex.toString(), Toast.LENGTH_LONG).show();
-                }
-                if (locationManager != null) {
+
+                locationManager.requestLocationUpdates(provider,MIN_TIME_FOR_UPDATE, MIN_DISTANCE_FOR_UPDATE, this);
+
+                //always not null
+                //if (locationManager != null) {
                     location = locationManager.getLastKnownLocation(provider);
                     return location;
-                }
+                //}
             }
             return null;
         }
